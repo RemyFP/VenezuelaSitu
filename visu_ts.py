@@ -274,7 +274,16 @@ regions_button_plt.on_change('active', plot_callback)
 ### Histogram showing the impact of n_folds
 # Get data
 ## Results to fetch
-n_folds_list = [8,16,24,32,40,48]
+# n_folds values for which data exists
+folder_path = os.sep.join([os.getcwd(),results_folder])
+existing_file_paths = glob.glob(os.path.join(folder_path, '*'))
+n_folds_list_all = []
+for f in existing_file_paths:
+    n_str = f.split(os.sep)[-1].split('_')[-1].split('.')[0].replace('nfolds-','')
+    n_folds_list_all.append(np.int(n_str))
+    
+n_folds_list = np.unique(n_folds_list_all).tolist()
+n_folds_list.sort()
 score_types = ['In Sample','OOS']
 agg_all_nfolds = None
 for n in n_folds_list:
@@ -383,3 +392,5 @@ curdoc().add_root(column(regions_button_plt,source_set_button_plot,div,p_ts,\
                          div_separator,regions_button_bar,source_set_button_bar,\
                          div_bar,p_bar))
 curdoc().title = "Venezuela Situational Awareness"
+
+

@@ -5,8 +5,10 @@ Created on Sat Jun 29 20:22:18 2019
 @author: Remy
 """
 import os
-main_folder_l = ['C:','Users','Remy','Desktop','UT Austin','Meyers Lab',
-                 'Venezuela Situational Awareness','RemySituAwareness']
+import importlib
+main_folder_l = ['C:','Users','remyp','Research',
+                 'Venezuela Situational Awareness','RemySituAwarenessClimateImbedded']
+
 main_folder = os.sep.join(main_folder_l)
 os.chdir(main_folder)
 import glob
@@ -20,6 +22,7 @@ import matplotlib.pyplot as plt
 import importlib
 import datetime as dt
 import situ_fn
+importlib.reload(situ_fn)
 
 os.chdir(main_folder + os.sep + 'optimization')
 import situational_awareness as sa
@@ -32,6 +35,10 @@ os.chdir(main_folder)
 from sklearn.model_selection import KFold
 from sklearn import linear_model
 #import pdb
+np.set_printoptions(linewidth=150)
+pd.set_option('display.width', 150)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 
 
 # if os.getcwd()[-12:] != 'optimization':
@@ -279,78 +286,45 @@ def main(gold_standard_folder,
     # print('Done all optimizations!')
 ###############################################################################
 ### Run main
-run_main_functions = False
+run_main_functions = True
 if run_main_functions:
-    n_folds=24 # 8 ################
-    results_folder = 'OptimizationResults' + os.sep + np.str(n_folds)
-    date_start = '1/2/2005'
-    date_end = '1/6/2013'
-    OOS_testing_dates = ['1/6/2013','1/31/2015']
-    gold_standard_folder='GoldStandard'
-    candidate_folder='SourcesToOptimize'
-    objective='R_squared'
-    output_size='max'
-    save_start_date=False
-    threshold_optim=0.01
-    lin_reg_intercept=True
-    exclude_predictors_path = 'Parameters' + os.sep + 'Predictors_Excluded.csv'
-    
-    main(gold_standard_folder='GoldStandard',
-                candidate_folder='SourcesToOptimize',
-                date_start=date_start,
-                date_end=date_end,
-                #    date_start='2010-11-22',
-                #    date_end='2013-09-19',
-                objective='R_squared',
-                n_folds=n_folds,
-                output_size='max',
-                save_folder=results_folder,
-                save_start_date=False,
-                OOS_testing_dates=OOS_testing_dates,
-                threshold_optim=0.0001,
-                lin_reg_intercept=lin_reg_intercept,
-                exclude_predictors_path=exclude_predictors_path)
-########################################
-    n_folds=48 # 8 ################
-    results_folder = 'OptimizationResults' + os.sep + np.str(n_folds)
-    date_start = '1/2/2005'
-    date_end = '1/6/2013'
-    OOS_testing_dates = ['1/6/2013','1/31/2015']
-    gold_standard_folder='GoldStandard'
-    candidate_folder='SourcesToOptimize'
-    objective='R_squared'
-    output_size='max'
-    save_start_date=False
-    threshold_optim=0.0001
-    lin_reg_intercept=True
-    exclude_predictors_path = 'Parameters' + os.sep + 'Predictors_Excluded.csv'
-    
-    main(gold_standard_folder='GoldStandard48',
-                candidate_folder='SourcesToOptimize',
-                date_start=date_start,
-                date_end=date_end,
-                #    date_start='2010-11-22',
-                #    date_end='2013-09-19',
-                objective='R_squared',
-                n_folds=n_folds,
-                output_size='max',
-                save_folder=results_folder,
-                save_start_date=False,
-                OOS_testing_dates=OOS_testing_dates,
-                threshold_optim=0.0001,
-                lin_reg_intercept=lin_reg_intercept,
-                exclude_predictors_path=exclude_predictors_path)
+    for n in [8,16,24,32,40,48]:
+        n_folds=n # 8 ################
+        results_folder = 'OptimizationResults' + os.sep + np.str(n_folds)
+        date_start = '1/2/2005'
+        date_end = '1/6/2013'
+        OOS_testing_dates = ['1/6/2013','1/31/2015']
+        gold_standard_folder='GoldStandard'
+        candidate_folder='SourcesToOptimize'
+        objective='R_squared'
+        output_size='max'
+        save_start_date=False
+        threshold_optim=0.01
+        lin_reg_intercept=True
+        exclude_predictors_path = 'Parameters' + os.sep + 'Predictors_Excluded.csv'
+        
+        main(gold_standard_folder=gold_standard_folder,
+                    candidate_folder=candidate_folder,
+                    date_start=date_start,
+                    date_end=date_end,
+                    #    date_start='2010-11-22',
+                    #    date_end='2013-09-19',
+                    objective='R_squared',
+                    n_folds=n_folds,
+                    output_size='max',
+                    save_folder=results_folder,
+                    save_start_date=False,
+                    OOS_testing_dates=OOS_testing_dates,
+                    threshold_optim=threshold_optim,
+                    lin_reg_intercept=lin_reg_intercept,
+                    exclude_predictors_path=exclude_predictors_path)
 ########################################
 ###############################################################################
-# Aggregate main function results per gold standard
-situ_fn.aggregate_results(data_folder='OptimizationResults//8')
-situ_fn.aggregate_results(data_folder='OptimizationResults//16')
-situ_fn.aggregate_results(data_folder='OptimizationResults//24')
-situ_fn.aggregate_results(data_folder='OptimizationResults//32')
-situ_fn.aggregate_results(data_folder='OptimizationResults//40')
-situ_fn.aggregate_results(data_folder='OptimizationResults//48')
 # Aggregate results in single dataframe and keep final numbers only
 for n_folds in [8,16,24,32,40,48]:
+    folder = 'OptimizationResults' + os.sep + np.str(n_folds)
+    # Aggregate main function results per gold standard
+    situ_fn.aggregate_results(data_folder=folder)
     folder_in = os.sep.join(['OptimizationResults',np.str(n_folds),'Summary'])
     situ_fn.write_summary_results(folder=folder_in,
                                   out_folder='OptimizationResults//SummaryAll',

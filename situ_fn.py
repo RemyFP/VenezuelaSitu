@@ -64,10 +64,10 @@ def write_summary_results(folder='OptimizationResults//8//Summary',
     # Data sources
     colnames = ['Column', 'Colombia', 'ColombiaBorderPlusGT', 'ColombiaPlusGT',
                 'ColombiaPlusGTByState','ColombiaPlusGTBySymptom', 'DengueGT_CO',
-                'GTByStateVenAndCol', 'GTVenezuela']
+                'GTByStateVenAndCol', 'GTVenezuela','ClimateData']
     newnames = ['ScoreType', 'Colombia', 'Colombia Border & GT', 'Colombia & GT',
                 'Colombia & GT by State','Colombia & GT by Symptom', 'Dengue GT CO',
-                'GT by State - Ven & Col', 'GT Venezuela']
+                'GT by State - Ven & Col', 'GT Venezuela','Climate']
     
     # Type of scores
     agg.rename(columns=dict(zip(colnames,newnames)),inplace=True)
@@ -79,11 +79,18 @@ def write_summary_results(folder='OptimizationResults//8//Summary',
                      'Nuevaesparta':'Nueva Esparta'}
     agg.replace(to_replace={'Region':region_rename},inplace=True)
     
+    # Restrict to gold standards we actually have
+    gs_list = [x for x in newnames[1:] if x in agg.columns.tolist()]
+    
     # Get max value for each region
-    agg.loc[:,newnames[1:]] = agg.loc[:,newnames[1:]].apply(pd.to_numeric)
-    agg.loc[:,'BestSource'] = agg.loc[:,newnames[1:]].apply(lambda x:
-        newnames[1+np.array(x).argmax()],axis=1)
-    agg.loc[:,'Best'] = agg.loc[:,newnames[1:]].max(axis=1)
+#    agg.loc[:,newnames[1:]] = agg.loc[:,newnames[1:]].apply(pd.to_numeric)
+#    agg.loc[:,'BestSource'] = agg.loc[:,newnames[1:]].apply(lambda x:
+#        newnames[1+np.array(x).argmax()],axis=1)
+#    agg.loc[:,'Best'] = agg.loc[:,newnames[1:]].max(axis=1)
+    agg.loc[:,gs_list] = agg.loc[:,gs_list].apply(pd.to_numeric)
+    agg.loc[:,'BestSource'] = agg.loc[:,gs_list].apply(lambda x:
+        gs_list[np.array(x).argmax()],axis=1)
+    agg.loc[:,'Best'] = agg.loc[:,gs_list].max(axis=1)
     
     # For OOS best corresponds to best in sample R squared
     best_source = agg.loc[agg.ScoreType == 'InSample',['Region','BestSource']].\
@@ -102,13 +109,16 @@ def write_summary_results(folder='OptimizationResults//8//Summary',
     agg_long.loc[:,'NbFolds'] = n_folds
     
     # Save results in csv files
+    if not os.path.exists(out_folder):
+        os.makedirs(out_folder)
+    
     n_folds_str = 'nfolds' + '-' + np.str(n_folds)
     path_agg = out_folder + os.sep + 'SummaryAggregate' + '_' + n_folds_str + '.csv'
     agg_long.to_csv(path_agg)
     path_all = out_folder + os.sep + 'AggregateAll' + '_' + n_folds_str + '.csv'
     df_all.to_csv(path_all)
     
-    return agg_long, df_all
+    return #agg_long, df_all
 ###############################################################################
 def aggregate_results(data_folder='OptimizationResults'):
     """ Aggregates results of the main function in situ_main in a new folder 
@@ -126,7 +136,7 @@ def aggregate_results(data_folder='OptimizationResults'):
         #p = file_paths[0]
         # Get details of file (number of intervals, sources)
         
-        _,filename = p.split(os.sep)
+        filename = p.split(os.sep)[-1]
         filename_split = filename.split('_')
         gold_standard,sources,_ = [filename_split[i] for i in [0,1,-1]]
         if sources == 'DengueGT':
