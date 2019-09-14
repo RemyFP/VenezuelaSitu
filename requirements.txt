@@ -1,6 +1,5 @@
 numpy
 pandas
-glob
 geopandas
 bokeh
 json
