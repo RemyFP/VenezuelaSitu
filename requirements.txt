@@ -2,6 +2,5 @@ numpy
 pandas
 geopandas
 bokeh
-json
 sklearn
 scipy
