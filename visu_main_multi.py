@@ -27,7 +27,7 @@ import visu_tab_region_comparison
 
 ### Inputs
 ## Folders
-results_folder = 'OptimizationResults' + os.sep + 'SummaryAll'
+results_folder = 'OptimizationResultsMulti' + os.sep + 'SummaryAll'
 gold_standard_folder='GoldStandard'
 candidate_folder='SourcesToOptimize'
 map_shapefile = os.sep.join([os.getcwd(),'MapData','Regions']) + os.sep +\
