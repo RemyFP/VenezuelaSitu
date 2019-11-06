@@ -137,7 +137,7 @@ region_names_new = [region_rename[x.title()]  if \
 old_to_new_regions = dict(zip(region_names_old,region_names_new))
 new_to_old_regions = dict(zip(region_names_new,region_names_old))
 
-
+    
 ### Data for map
 ## GPS data
 gdf = gpd.read_file(map_shapefile)[['ADM1_ES', 'geometry']]
